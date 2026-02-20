@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f26966d639724442a4fd167bec8339d, type: 3}
+  m_Name: HungerGaugeListSO
+  m_EditorClassIdentifier: 
+  gauges:
+  - nameKey: hunger_full
+    descriptionKey: hunger_full_desc
+    icon: {fileID: 21300000, guid: 722845759eda8854c867d4bb82e68aff, type: 3}
+    activeBoneCount: 3
+  - nameKey: hunger_medium_high
+    descriptionKey: hunger_medium_high_desc
+    icon: {fileID: 21300000, guid: b9ad4b7e491e98d478b8294bd461bd54, type: 3}
+    activeBoneCount: 2
+  - nameKey: hunger_medium_low
+    descriptionKey: hunger_medium_low_desc
+    icon: {fileID: 21300000, guid: b9ad4b7e491e98d478b8294bd461bd54, type: 3}
+    activeBoneCount: 1
+  - nameKey: hunger_hungry
+    descriptionKey: hunger_hungry_desc
+    icon: {fileID: 21300000, guid: 9cf96c403a6b0f54fbf941a66091557c, type: 3}
+    activeBoneCount: 0
+  boneOnImage: {fileID: 21300000, guid: 3a85bb847a31bef45a07a25c6cadaa52, type: 3}
+  boneOffImage: {fileID: 21300000, guid: 9e76750b079483547b306478e343a470, type: 3}

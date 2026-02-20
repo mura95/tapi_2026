@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b4c4d3560f272b49b7bcbb4d17496fb, type: 3}
+  m_Name: Gluttonous
+  m_EditorClassIdentifier: Assembly-CSharp::DogPersonalityData
+  personalityName: "\u98DF\u3044\u3057\u3093\u574A"
+  description: "\u98DF\u3079\u7269\u304C\u5927\u597D\u304D\u3001\u98DF\u4E8B\u3067\u5927\u559C\u3073"
+  loveIncreaseMultiplier: 1
+  loveDecreaseMultiplier: 1
+  demandIncreaseMultiplier: 1
+  demandDecreaseMultiplier: 1
+  hungerProgressMultiplier: 1.5
+  feedLoveBonus: 3
+  specialEffect: 

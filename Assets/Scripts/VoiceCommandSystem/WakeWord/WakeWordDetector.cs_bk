@@ -1,0 +1,512 @@
+using UnityEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.InferenceEngine;
+
+namespace VoiceCommandSystem.WakeWord
+{
+    /// <summary>
+    /// Wake Word検出器（Google Colabカスタムモデル対応版）
+    /// 16フレーム × 96メルバンドのメルスペクトログラムを直接入力
+    /// </summary>
+    public class WakeWordDetector : MonoBehaviour
+    {
+        [Header("Model Settings")]
+        [SerializeField] private ModelAsset modelAsset;
+
+        [Header("Detection Settings")]
+        [SerializeField, Range(0f, 1f)] private float detectionThreshold = 0.5f;
+        [SerializeField] private float bufferDuration = 1.28f; // 16フレーム × 80ms = 1.28秒
+        [SerializeField] private float detectionCooldown = 2.0f;
+
+        [Header("Audio Settings")]
+        [SerializeField] private int sampleRate = 16000;
+
+        [Header("Mel Spectrogram Settings - Google Colab Compatible")]
+        [SerializeField] private int nMels = 96;        // Google Colabのデフォルト
+        [SerializeField] private int nFFT = 512;
+        [SerializeField] private int hopLength = 160;   // 10ms @ 16kHz
+        [SerializeField] private int winLength = 400;   // 25ms @ 16kHz
+        [SerializeField] private int nFrames = 16;      // 固定16フレーム
+
+        [Header("Backend")]
+        [SerializeField] private BackendType backend = BackendType.CPU;
+
+        [Header("Debug")]
+        [SerializeField] private bool showDebugLog = true;
+
+        // モデル
+        private Model runtimeModel;
+        private Worker worker;
+
+        // オーディオバッファ
+        private Queue<float> audioBuffer;
+        private int bufferSize;
+
+        // メルフィルターバンク（事前計算）
+        private float[,] melFilterBank;
+
+        // クールダウン管理
+        private float lastDetectionTime;
+
+        // イベント
+        public event Action<float> OnWakeWordDetected;
+        public event Action<float> OnDetectionScore;
+
+        // プロパティ
+        public bool IsInitialized { get; private set; }
+        public float CurrentScore { get; private set; }
+
+        private void Awake()
+        {
+            // 必要なサンプル数 = (nFrames - 1) * hopLength + winLength
+            bufferSize = (nFrames - 1) * hopLength + winLength;
+            audioBuffer = new Queue<float>(bufferSize);
+
+            Log($"Buffer size calculated: {bufferSize} samples ({bufferSize / (float)sampleRate:F3}s)");
+        }
+
+        private void Start()
+        {
+            InitializeModel();
+            InitializeMelFilterBank();
+        }
+
+        private void OnDestroy()
+        {
+            CleanupModel();
+        }
+
+        private void InitializeModel()
+        {
+            Log("Initializing Wake Word Detector (Google Colab Custom Model)...");
+
+            if (modelAsset == null)
+            {
+                Debug.LogError("[WakeWordDetector] Model Asset not assigned!");
+                return;
+            }
+
+            try
+            {
+                runtimeModel = ModelLoader.Load(modelAsset);
+                worker = new Worker(runtimeModel, backend);
+
+                IsInitialized = true;
+                Log("✅ Wake Word Detector initialized");
+                Log($"Backend: {backend}");
+                Log($"Detection threshold: {detectionThreshold}");
+                Log($"Expected input shape: (1, {nFrames}, {nMels})");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[WakeWordDetector] Failed to initialize: {e.Message}\n{e.StackTrace}");
+                IsInitialized = false;
+            }
+        }
+
+        private void InitializeMelFilterBank()
+        {
+            int numFreqBins = nFFT / 2 + 1;
+            melFilterBank = CreateMelFilterBank(numFreqBins, nMels, sampleRate);
+            Log($"Mel filter bank initialized: {nMels} mels, {numFreqBins} freq bins");
+        }
+
+        private void CleanupModel()
+        {
+            worker?.Dispose();
+            worker = null;
+            Log("Wake Word Detector cleaned up");
+        }
+
+        /// <summary>
+        /// 音声データを処理
+        /// </summary>
+        public void ProcessAudioData(float[] audioData)
+        {
+            if (!IsInitialized || audioData == null || audioData.Length == 0)
+            {
+                Debug.LogWarning($"[WakeWordDetector] Skip: init={IsInitialized}, data={audioData?.Length ?? 0}");
+                return;
+            }
+
+            Debug.Log($"[WakeWordDetector] Before buffer: {audioBuffer.Count}");
+
+            foreach (float sample in audioData)
+            {
+                if (audioBuffer.Count >= bufferSize)
+                    audioBuffer.Dequeue();
+                audioBuffer.Enqueue(sample);
+            }
+
+            Debug.Log($"[WakeWordDetector] After buffer: {audioBuffer.Count}/{bufferSize}");
+
+            if (audioBuffer.Count >= bufferSize)
+            {
+                Debug.Log("[WakeWordDetector] Calling DetectWakeWord");
+                DetectWakeWord();
+            }
+        }
+
+        private void DetectWakeWord()
+        {
+            Debug.Log($"[WakeWordDetector] === DetectWakeWord START ===");
+            Debug.Log($"[WakeWordDetector] Buffer count: {audioBuffer.Count}, Cooldown check: {Time.time - lastDetectionTime:F2}s");
+
+            if (Time.time - lastDetectionTime < detectionCooldown)
+            {
+                Debug.Log($"[WakeWordDetector] ⏸ Cooldown active, skipping");
+                return;
+            }
+
+            try
+            {
+                Debug.Log($"[WakeWordDetector] Converting buffer to array...");
+                float[] audioArray = audioBuffer.ToArray();
+                Debug.Log($"[WakeWordDetector] Array length: {audioArray.Length}");
+
+                Debug.Log($"[WakeWordDetector] Extracting mel spectrogram...");
+                float[,] melSpec = ExtractMelSpectrogram(audioArray);
+
+                if (melSpec == null)
+                {
+                    Debug.LogError("[WakeWordDetector] ❌ Mel spec is NULL");
+                    return;
+                }
+
+                Debug.Log($"[WakeWordDetector] Mel spec: [{melSpec.GetLength(0)}, {melSpec.GetLength(1)}]");
+                Debug.Log($"[WakeWordDetector] Calling Predict...");
+
+                float score = Predict(melSpec);
+
+                Debug.Log($"[WakeWordDetector] 📊 Score: {score:F4}");
+
+                CurrentScore = score;
+                OnDetectionScore?.Invoke(score);
+
+                if (score >= detectionThreshold)
+                {
+                    Debug.Log($"[WakeWordDetector] 🎤 DETECTED! Score: {score:F3}");
+                    lastDetectionTime = Time.time;
+                    OnWakeWordDetected?.Invoke(score);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[WakeWordDetector] ❌ Error: {e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// メルスペクトログラムを抽出（Google Colabと同じ方式）
+        /// 出力: [nFrames, nMels] = [16, 96]
+        /// </summary>
+        private float[,] ExtractMelSpectrogram(float[] audio)
+        {
+            try
+            {
+                // 1. オーディオ正規化
+                float maxAbs = 0f;
+                for (int i = 0; i < audio.Length; i++)
+                {
+                    float abs = Mathf.Abs(audio[i]);
+                    if (abs > maxAbs) maxAbs = abs;
+                }
+
+                if (maxAbs > 0f)
+                {
+                    for (int i = 0; i < audio.Length; i++)
+                    {
+                        audio[i] /= maxAbs;
+                    }
+                }
+
+                // 2. STFTを計算してメルスペクトログラムに変換
+                float[,] melSpec = new float[nFrames, nMels];
+                float[] window = CreateHammingWindow(winLength);
+
+                for (int frameIdx = 0; frameIdx < nFrames; frameIdx++)
+                {
+                    int startSample = frameIdx * hopLength;
+
+                    // ウィンドウ適用
+                    float[] frame = new float[nFFT];
+                    for (int i = 0; i < winLength && startSample + i < audio.Length; i++)
+                    {
+                        frame[i] = audio[startSample + i] * window[i];
+                    }
+
+                    // パワースペクトラム計算
+                    float[] powerSpectrum = ComputePowerSpectrum(frame);
+
+                    // メルフィルターバンク適用
+                    for (int melIdx = 0; melIdx < nMels; melIdx++)
+                    {
+                        float melEnergy = 0f;
+                        for (int freqIdx = 0; freqIdx < powerSpectrum.Length; freqIdx++)
+                        {
+                            melEnergy += powerSpectrum[freqIdx] * melFilterBank[melIdx, freqIdx];
+                        }
+                        // ログスケール変換（librosaのpower_to_dbと同様）
+                        melSpec[frameIdx, melIdx] = 10f * Mathf.Log10(Mathf.Max(melEnergy, 1e-10f));
+                    }
+                }
+
+                // 3. 正規化（全体の最大値基準）
+                float maxVal = float.MinValue;
+                float minVal = float.MaxValue;
+
+                for (int t = 0; t < nFrames; t++)
+                {
+                    for (int m = 0; m < nMels; m++)
+                    {
+                        if (melSpec[t, m] > maxVal) maxVal = melSpec[t, m];
+                        if (melSpec[t, m] < minVal) minVal = melSpec[t, m];
+                    }
+                }
+
+                // min-max正規化
+                if (maxVal > minVal)
+                {
+                    for (int t = 0; t < nFrames; t++)
+                    {
+                        for (int m = 0; m < nMels; m++)
+                        {
+                            melSpec[t, m] = (melSpec[t, m] - minVal) / (maxVal - minVal);
+                        }
+                    }
+                }
+
+                return melSpec;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[WakeWordDetector] Mel spectrogram extraction error: {e.Message}");
+                return null;
+            }
+        }
+
+        private float[] ComputePowerSpectrum(float[] frame)
+        {
+            int n = frame.Length;
+            float[] real = new float[n];
+            float[] imag = new float[n];
+            Array.Copy(frame, real, n);
+
+            FFT(real, imag);
+
+            int numBins = n / 2 + 1;
+            float[] power = new float[numBins];
+
+            for (int i = 0; i < numBins; i++)
+            {
+                power[i] = real[i] * real[i] + imag[i] * imag[i];
+            }
+
+            return power;
+        }
+
+        /// <summary>
+        /// Cooley-Tukey FFT実装
+        /// </summary>
+        private void FFT(float[] real, float[] imag)
+        {
+            int n = real.Length;
+
+            // ビットリバーサル
+            int j = 0;
+            for (int i = 0; i < n - 1; i++)
+            {
+                if (i < j)
+                {
+                    float tempR = real[i];
+                    float tempI = imag[i];
+                    real[i] = real[j];
+                    imag[i] = imag[j];
+                    real[j] = tempR;
+                    imag[j] = tempI;
+                }
+
+                int k = n / 2;
+                while (k <= j)
+                {
+                    j -= k;
+                    k /= 2;
+                }
+                j += k;
+            }
+
+            // バタフライ演算
+            for (int len = 2; len <= n; len *= 2)
+            {
+                float angle = -2f * Mathf.PI / len;
+                float wlenReal = Mathf.Cos(angle);
+                float wlenImag = Mathf.Sin(angle);
+
+                for (int i = 0; i < n; i += len)
+                {
+                    float wReal = 1f;
+                    float wImag = 0f;
+
+                    for (int j2 = 0; j2 < len / 2; j2++)
+                    {
+                        int idx1 = i + j2;
+                        int idx2 = i + j2 + len / 2;
+
+                        float tReal = wReal * real[idx2] - wImag * imag[idx2];
+                        float tImag = wReal * imag[idx2] + wImag * real[idx2];
+
+                        real[idx2] = real[idx1] - tReal;
+                        imag[idx2] = imag[idx1] - tImag;
+                        real[idx1] = real[idx1] + tReal;
+                        imag[idx1] = imag[idx1] + tImag;
+
+                        float tempW = wReal;
+                        wReal = wReal * wlenReal - wImag * wlenImag;
+                        wImag = tempW * wlenImag + wImag * wlenReal;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// メルフィルターバンクの作成
+        /// </summary>
+        private float[,] CreateMelFilterBank(int numFreqBins, int numMels, int sampleRate)
+        {
+            float[,] filterBank = new float[numMels, numFreqBins];
+
+            float fMin = 0f;
+            float fMax = sampleRate / 2f;
+            float melMin = HzToMel(fMin);
+            float melMax = HzToMel(fMax);
+
+            // メルスケールで等間隔の点を作成
+            float[] melPoints = new float[numMels + 2];
+            for (int i = 0; i < melPoints.Length; i++)
+            {
+                float mel = melMin + (melMax - melMin) * i / (numMels + 1);
+                melPoints[i] = MelToHz(mel);
+            }
+
+            // 三角フィルター作成
+            for (int m = 0; m < numMels; m++)
+            {
+                float fLeft = melPoints[m];
+                float fCenter = melPoints[m + 1];
+                float fRight = melPoints[m + 2];
+
+                for (int k = 0; k < numFreqBins; k++)
+                {
+                    float freq = (float)k * sampleRate / nFFT;
+
+                    if (freq >= fLeft && freq <= fCenter)
+                    {
+                        filterBank[m, k] = (freq - fLeft) / (fCenter - fLeft);
+                    }
+                    else if (freq > fCenter && freq <= fRight)
+                    {
+                        filterBank[m, k] = (fRight - freq) / (fRight - fCenter);
+                    }
+                }
+            }
+
+            return filterBank;
+        }
+
+        private float HzToMel(float hz)
+        {
+            return 2595f * Mathf.Log10(1f + hz / 700f);
+        }
+
+        private float MelToHz(float mel)
+        {
+            return 700f * (Mathf.Pow(10f, mel / 2595f) - 1f);
+        }
+
+        private float[] CreateHammingWindow(int size)
+        {
+            float[] window = new float[size];
+            for (int i = 0; i < size; i++)
+            {
+                window[i] = 0.54f - 0.46f * Mathf.Cos(2f * Mathf.PI * i / (size - 1));
+            }
+            return window;
+        }
+
+        /// <summary>
+        /// モデル推論（Google Colabカスタムモデル用）
+        /// 入力形状: (1, 16, 96)
+        /// </summary>
+        private float Predict(float[,] melSpec)
+        {
+            // 2D配列を1D配列に変換（行優先: [time, mel] → [time*mel]）
+            float[] flatData = new float[nFrames * nMels];
+            int idx = 0;
+            for (int t = 0; t < nFrames; t++)
+            {
+                for (int m = 0; m < nMels; m++)
+                {
+                    flatData[idx++] = melSpec[t, m];
+                }
+            }
+
+            // Tensorを作成 (1, 16, 96)
+            Tensor<float> inputTensor = new Tensor<float>(
+                new TensorShape(1, nFrames, nMels),
+                flatData
+            );
+
+            try
+            {
+                // 推論実行
+                worker.Schedule(inputTensor);
+
+                // 出力取得
+                Tensor<float> outputTensor = worker.PeekOutput() as Tensor<float>;
+
+                if (outputTensor == null)
+                {
+                    Debug.LogError("[WakeWordDetector] Output tensor is null");
+                    return 0f;
+                }
+
+                float[] output = outputTensor.DownloadToArray();
+
+                // Sigmoid適用（Google ColabはBCEWithLogitsLossで学習）
+                float logit = output[0];
+                float probability = 1f / (1f + Mathf.Exp(-logit));
+
+                return Mathf.Clamp01(probability);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[WakeWordDetector] Prediction error: {e.Message}\n{e.StackTrace}");
+                return 0f;
+            }
+            finally
+            {
+                inputTensor.Dispose();
+            }
+        }
+
+        public void SetThreshold(float threshold)
+        {
+            detectionThreshold = Mathf.Clamp01(threshold);
+            Log($"Threshold updated: {detectionThreshold}");
+        }
+
+        public void ClearBuffer()
+        {
+            audioBuffer.Clear();
+            Log("Audio buffer cleared");
+        }
+
+        private void Log(string message)
+        {
+            if (showDebugLog)
+                Debug.Log($"[WakeWordDetector] {message}");
+        }
+    }
+}

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ef537dd43dede45b9fcd5259902a79, type: 3}
+  m_Name: SitAnimationGroup
+  m_EditorClassIdentifier: 
+  waitLoopTime:
+    minValue: 3
+    maxValue: 4
+  transitionAnimationTypeName: SittingType
+  loopAnimationStateFullPaths:
+  - Base Layer.Sitting_02.Sitting.270_Sit_Loop
+  oneShotAnimations:
+  - stateName: Tilt
+    animationType: 1
+    audioClip: {fileID: 8300000, guid: c9856ef9b16eb9c42949f6eadf793d60, type: 3}
+    emotionState: 0
+  - stateName: LickPow
+    animationType: 2
+    audioClip: {fileID: 8300000, guid: 9e38b019ccea7ef4ba5ec86e9cdca33f, type: 3}
+    emotionState: 0
+  - stateName: Nod
+    animationType: 3
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Snooze
+    animationType: 4
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: LookAround
+    animationType: 5
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: LickToFall
+    animationType: 6
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Scratch
+    animationType: 7
+    audioClip: {fileID: 8300000, guid: 3d32062a3e592b44788aa96c49cf16ec, type: 3}
+    emotionState: 0
+  loopAnimations:
+  - stateName: Loop
+    animationType: 0
+    audioClip: {fileID: 0}
+    emotionState: 0

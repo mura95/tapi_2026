@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1fe67d613ba017c4dbe88443a2988c93
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 21088
+  packageName: OpenCV for Unity
+  packageVersion: 3.0.0
+  assetPath: Assets/OpenCVForUnity/org/opencv/_unity/DebugMatUtils/Resources/ImageWindow_UnityUtils.prefab
+  uploadId: 796640

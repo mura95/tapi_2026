@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "627305151036",
+    "firebase_url": "https://pichipichipet-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "pichipichipet",
+    "storage_bucket": "pichipichipet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627305151036:android:095fe2708e15a9738ee139",
+        "android_client_info": {
+          "package_name": "jp.co.pichipichi.petcontroller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_5U9JD0wN8kk4Yr0OFaVH9Br9rshCOGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627305151036:android:3386b2e386d431348ee139",
+        "android_client_info": {
+          "package_name": "jp.co.pichipichi.petdisplay"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_5U9JD0wN8kk4Yr0OFaVH9Br9rshCOGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627305151036:android:349abec837ab61e98ee139",
+        "android_client_info": {
+          "package_name": "jp.polyomino.petcontroller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_5U9JD0wN8kk4Yr0OFaVH9Br9rshCOGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627305151036:android:8a1b92ecbb01111a8ee139",
+        "android_client_info": {
+          "package_name": "jp.polyomino.pichipichipet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_5U9JD0wN8kk4Yr0OFaVH9Br9rshCOGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627305151036:android:74d395f88f8c39778ee139",
+        "android_client_info": {
+          "package_name": "pichipichi.pet.unity"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_5U9JD0wN8kk4Yr0OFaVH9Br9rshCOGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

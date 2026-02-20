@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b4c4d3560f272b49b7bcbb4d17496fb, type: 3}
+  m_Name: Independent
+  m_EditorClassIdentifier: Assembly-CSharp::DogPersonalityData
+  personalityName: "\u72EC\u7ACB\u5FC3\u5F37\u3044"
+  description: "\u30C4\u30F3\u30C7\u30EC\u3001\u4E00\u4EBA\u3067\u3082\u5E73\u6C17"
+  loveIncreaseMultiplier: 0.8
+  loveDecreaseMultiplier: 0.7
+  demandIncreaseMultiplier: 0.6
+  demandDecreaseMultiplier: 1
+  hungerProgressMultiplier: 1
+  feedLoveBonus: 0
+  specialEffect: 

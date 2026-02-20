@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2708516beb47d6548897003d0ff33346, type: 3}
+  m_Name: IdleAnimationGroup
+  m_EditorClassIdentifier: 
+  waitLoopTime:
+    minValue: 2
+    maxValue: 5
+  transitionAnimationTypeName: IdlingType
+  loopAnimationStateFullPaths:
+  - Base Layer.Idling_00.Idling.078_Idle_Loop_kai
+  oneShotAnimations:
+  - stateName: Tilt
+    animationType: 1
+    audioClip: {fileID: 8300000, guid: 2f3346f863d77364cacf8bbd7333f2bd, type: 3}
+    emotionState: 0
+  - stateName: Scratch
+    animationType: 2
+    audioClip: {fileID: 8300000, guid: 4cb59ed4b24e3f84997ec5672ee9ca73, type: 3}
+    emotionState: 0
+  - stateName: Scroll_MaiTu
+    animationType: 3
+    audioClip: {fileID: 8300000, guid: 9f114bab67f3cac44a59d2dd3c1a7fa0, type: 3}
+    emotionState: 0
+  - stateName: Right_Twirl
+    animationType: 4
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Sniffing
+    animationType: 5
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Disappoint
+    animationType: 6
+    audioClip: {fileID: 8300000, guid: f076a611151097c4ca380660d79fa16a, type: 3}
+    emotionState: 0
+  - stateName: Pat_Excited
+    animationType: 7
+    audioClip: {fileID: 8300000, guid: 7a7dabbbe8fd0854ebd159109dc12de4, type: 3}
+    emotionState: 0
+  - stateName: Pat_Excited2
+    animationType: 8
+    audioClip: {fileID: 8300000, guid: facfbb95a3fccff46ae76ebce290e3e3, type: 3}
+    emotionState: 0
+  - stateName: Stroll
+    animationType: 9
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Shake
+    animationType: 10
+    audioClip: {fileID: 0}
+    emotionState: 0
+  - stateName: Pat_Left
+    animationType: 11
+    audioClip: {fileID: 8300000, guid: 37c3a54f6c594804eaaad6f9250f4dc6, type: 3}
+    emotionState: 0
+  - stateName: Sad_Blend_Bark
+    animationType: 12
+    audioClip: {fileID: 8300000, guid: 2e476fedd5e6d874d832607cf573c3ff, type: 3}
+    emotionState: 1
+  - stateName: Pat_Right
+    animationType: 13
+    audioClip: {fileID: 8300000, guid: 2e476fedd5e6d874d832607cf573c3ff, type: 3}
+    emotionState: 1
+  - stateName: Tilt-Part2
+    animationType: 14
+    audioClip: {fileID: 8300000, guid: 2f3346f863d77364cacf8bbd7333f2bd, type: 3}
+    emotionState: 0
+  - stateName: Tilt-Part04
+    animationType: 15
+    audioClip: {fileID: 8300000, guid: 2f3346f863d77364cacf8bbd7333f2bd, type: 3}
+    emotionState: 0
+  - stateName: Tilt-Part05
+    animationType: 16
+    audioClip: {fileID: 0}
+    emotionState: 0
+  loopAnimations:
+  - stateName: Loop
+    animationType: 0
+    audioClip: {fileID: 0}
+    emotionState: 0

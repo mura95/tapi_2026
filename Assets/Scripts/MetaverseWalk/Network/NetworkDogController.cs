@@ -41,6 +41,7 @@ namespace TapHouse.MetaverseWalk.Network
         public override void Spawned()
         {
             var dogController = GetComponent<MetaverseDogController>();
+
             agent = GetComponent<NavMeshAgent>();
 
             Debug.Log($"[NetworkDogController] Spawned: HasStateAuthority={HasStateAuthority}, " +
@@ -52,6 +53,7 @@ namespace TapHouse.MetaverseWalk.Network
                 if (dogController != null)
                 {
                     dogController.enabled = false;
+                    dogController.IsNetworkControlled = true;
                 }
 
                 // NavMeshAgentを有効化（DogFollowerの移動に必要）
@@ -69,6 +71,8 @@ namespace TapHouse.MetaverseWalk.Network
 
                 // MetaverseDogFollowerを追加
                 localDogFollower = gameObject.AddComponent<MetaverseDogFollower>();
+               // localDogFollower.IsNetworkControlled = true;
+
 
                 // Animatorを設定
                 if (animator == null)
@@ -103,6 +107,7 @@ namespace TapHouse.MetaverseWalk.Network
                 if (agent != null)
                 {
                     agent.enabled = false;
+                    agent.updateRotation = false;
                 }
 
                 // リモート犬の初期位置をNetworked値に合わせる
@@ -135,10 +140,12 @@ namespace TapHouse.MetaverseWalk.Network
 
             // 位置をネットワークに書き込み
             NetworkedPosition = transform.position;
+            NetworkedYaw = localDogFollower.CurrentYaw;
         }
 
         public override void Render()
         {
+            if (HasStateAuthority) return;
             // デバッグ: yawを1度単位で1秒ごとに出力
             debugLogTimer += Time.deltaTime;
             if (debugLogTimer >= 1f)
@@ -154,7 +161,7 @@ namespace TapHouse.MetaverseWalk.Network
             if (HasStateAuthority)
             {
                 // ローカル犬: LateUpdateで確定した回転をネットワークに書き込み
-                NetworkedYaw = transform.eulerAngles.y;
+                //NetworkedYaw = transform.eulerAngles.y;
                 return;
             }
 
@@ -178,5 +185,16 @@ namespace TapHouse.MetaverseWalk.Network
                 animator.SetBool(IsWalkingParam, NetworkedIsWalking);
             }
         }
+
+        private void LateUpdate()
+        {
+            if (HasStateAuthority && localDogFollower != null)
+            {
+                transform.rotation = Quaternion.Euler(0f, localDogFollower.CurrentYaw, 0f);
+            }
+        }
+
     }
-}
+
+     
+    }

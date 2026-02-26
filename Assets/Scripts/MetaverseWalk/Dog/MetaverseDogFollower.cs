@@ -17,6 +17,7 @@ namespace TapHouse.MetaverseWalk.Dog
     [RequireComponent(typeof(NavMeshAgent))]
     public class MetaverseDogFollower : MonoBehaviour
     {
+        public float CurrentYaw => desiredYaw;
         [Header("追従対象")]
         [SerializeField] private Transform target;
 

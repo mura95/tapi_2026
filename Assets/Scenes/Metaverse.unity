@@ -11674,7 +11674,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 448729f0b2c431d479b9959f6d7fd7fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TapHouse.MetaverseWalk.UI.MovementButtonUI
-  dogController: {fileID: 0}
+  playerController: {fileID: 0}
   forwardButton: {fileID: 2061678761}
   leftButton: {fileID: 1673493893}
   rightButton: {fileID: 1389939477}
@@ -21329,6 +21329,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: LowpolyTerrain
+      objectReference: {fileID: 0}
+    - target: {fileID: 2477219742316424569, guid: f01337c4b1a6e774cb6a6f4c3dd02910,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2477219742316589401, guid: f01337c4b1a6e774cb6a6f4c3dd02910,
         type: 3}

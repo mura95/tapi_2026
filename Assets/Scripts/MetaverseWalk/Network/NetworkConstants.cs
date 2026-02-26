@@ -6,7 +6,7 @@ namespace TapHouse.MetaverseWalk.Network
     public static class NetworkConstants
     {
         // ルーム設定
-        public const int MAX_PLAYERS_PER_ROOM = 10;       // 仕様: 最大10人/ルーム
+        public const int MAX_PLAYERS_PER_ROOM = 3;       // 仕様: 最大10人/ルーム
         public const int TICK_RATE = 30;
         public const string FIXED_REGION = "jp";
 

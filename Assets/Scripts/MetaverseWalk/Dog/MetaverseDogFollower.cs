@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using TapHouse.MetaverseWalk.Core;
+using TapHouse.MetaverseWalk.Network;
 
 namespace TapHouse.MetaverseWalk.Dog
 {
@@ -36,6 +37,7 @@ namespace TapHouse.MetaverseWalk.Dog
 
         private NavMeshAgent agent;
         private bool followEnabled = true;
+        private NetworkDogController controller;
 
         // 目的地の更新を間引くための閾値（毎フレームSetDestinationを防ぐ）
         private Vector3 lastSetDestination;
@@ -62,6 +64,7 @@ namespace TapHouse.MetaverseWalk.Dog
         {
             SetupAgent();
             desiredYaw = transform.eulerAngles.y;
+            controller = GetComponent<NetworkDogController>();
         }
 
         private void SetupAgent()
@@ -165,7 +168,11 @@ namespace TapHouse.MetaverseWalk.Dog
             desiredYaw = Mathf.LerpAngle(desiredYaw, targetYaw, rotationSpeed * Time.deltaTime);
 
             // Animatorが書いた値を上書き
-            transform.rotation = Quaternion.Euler(0f, desiredYaw, 0f);
+            if (controller.HasStateAuthority)
+            {
+                transform.rotation = Quaternion.Euler(0f, desiredYaw, 0f);
+            }
+           
         }
 
         private Vector3 GetFollowPosition()
@@ -181,7 +188,11 @@ namespace TapHouse.MetaverseWalk.Dog
             {
                 agent.Warp(navHit.position);
                 desiredYaw = cachedTargetYaw;
-                transform.rotation = Quaternion.Euler(0f, desiredYaw, 0f);
+                if (controller.HasStateAuthority)
+                {
+                    transform.rotation = Quaternion.Euler(0f, desiredYaw, 0f);
+                }
+               
                 lastSetDestination = Vector3.zero;
             }
         }
@@ -227,7 +238,7 @@ namespace TapHouse.MetaverseWalk.Dog
                 transform.position = position;
             }
             desiredYaw = rotation.eulerAngles.y;
-            transform.rotation = rotation;
+          transform.rotation = rotation;
             lastSetDestination = Vector3.zero;
         }
     }

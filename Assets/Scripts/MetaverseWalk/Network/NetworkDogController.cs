@@ -19,7 +19,7 @@ namespace TapHouse.MetaverseWalk.Network
         // ネットワーク同期プロパティ
         [Networked] public float NetworkedSpeed { get; set; }
         [Networked] public NetworkBool NetworkedIsWalking { get; set; }
-        [Networked] public float NetworkedYaw { get; set; }
+        [Networked] public Quaternion NetworkedYaw { get; set; }
         [Networked] public Vector3 NetworkedPosition { get; set; }
 
         private MetaverseDogFollower localDogFollower;
@@ -86,7 +86,7 @@ namespace TapHouse.MetaverseWalk.Network
 
                 // 初期位置をネットワークに書き込み
                 NetworkedPosition = transform.position;
-                NetworkedYaw = transform.eulerAngles.y;
+                //NetworkedYaw = transform.eulerAngles.y;
             }
             else
             {
@@ -112,7 +112,7 @@ namespace TapHouse.MetaverseWalk.Network
 
                 // リモート犬の初期位置をNetworked値に合わせる
                 transform.position = NetworkedPosition;
-                transform.rotation = Quaternion.Euler(0f, NetworkedYaw, 0f);
+                //transform.rotation = Quaternion.Euler(0f, NetworkedYaw, 0f);
             }
 
             // 犬のスケールを調整
@@ -140,14 +140,17 @@ namespace TapHouse.MetaverseWalk.Network
 
             // 位置をネットワークに書き込み
             NetworkedPosition = transform.position;
-            NetworkedYaw = localDogFollower.CurrentYaw;
+            if (localDogFollower != null)
+            {
+                NetworkedYaw = Quaternion.Euler(0f, localDogFollower.CurrentYaw, 0f);
+            }
         }
 
         public override void Render()
         {
             if (HasStateAuthority) return;
             // デバッグ: yawを1度単位で1秒ごとに出力
-            debugLogTimer += Time.deltaTime;
+            /*debugLogTimer += Time.deltaTime;
             if (debugLogTimer >= 1f)
             {
                 debugLogTimer = 0f;
@@ -156,7 +159,7 @@ namespace TapHouse.MetaverseWalk.Network
                 var vel = agent != null ? agent.velocity : Vector3.zero;
                 Debug.Log($"[NetworkDogController] local={HasStateAuthority} actualYaw={actualYaw} netYaw={netYaw} " +
                           $"vel=({vel.x:F1},{vel.z:F1}) speed={NetworkedSpeed:F2}");
-            }
+            }*/
 
             if (HasStateAuthority)
             {
@@ -173,10 +176,10 @@ namespace TapHouse.MetaverseWalk.Network
             DebugPositionError = Vector3.Distance(transform.position, NetworkedPosition);
 
             // 回転を補間で適用
-            Quaternion targetRot = Quaternion.Euler(0f, NetworkedYaw, 0f);
+           /*// Quaternion targetRot = Quaternion.Euler(0f, NetworkedYaw, 0f);
             transform.rotation = Quaternion.Slerp(
-                transform.rotation, targetRot,
-                NetworkConstants.ROTATION_INTERPOLATION_SPEED * Time.deltaTime);
+                transform.rotation, NetworkedYaw,
+                NetworkConstants.ROTATION_INTERPOLATION_SPEED * Time.deltaTime);*/
 
             // アニメーション適用
             if (animator != null)
@@ -188,10 +191,11 @@ namespace TapHouse.MetaverseWalk.Network
 
         private void LateUpdate()
         {
-            if (HasStateAuthority && localDogFollower != null)
-            {
-                transform.rotation = Quaternion.Euler(0f, localDogFollower.CurrentYaw, 0f);
-            }
+            // State authority: handled by MetaverseDogFollower.LateUpdate()
+            if (HasStateAuthority) return;
+
+            // ✅ Remote: override Animator after it runs, just like local does
+            transform.rotation = NetworkedYaw;
         }
 
     }

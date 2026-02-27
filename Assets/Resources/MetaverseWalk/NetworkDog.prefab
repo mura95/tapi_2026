@@ -1562,9 +1562,7 @@ GameObject:
   - component: {fileID: 1996517025666777097}
   - component: {fileID: 1557105593752297411}
   - component: {fileID: 1564195434120378652}
-  - component: {fileID: 2287075808099534071}
-  - component: {fileID: 4978446579106950231}
-  - component: {fileID: -8859219865022360706}
+  - component: {fileID: 8235115861070742218}
   m_Layer: 3
   m_Name: NetworkDog
   m_TagString: Untagged
@@ -1798,8 +1796,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1564195434120378652}
-  - {fileID: 2287075808099534071}
-  - {fileID: -8859219865022360706}
+  - {fileID: 8235115861070742218}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1564195434120378652
 MonoBehaviour:
@@ -1818,7 +1815,7 @@ MonoBehaviour:
   SyncParent: 1
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!114 &2287075808099534071
+--- !u!114 &8235115861070742218
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1836,48 +1833,6 @@ MonoBehaviour:
     _value: 0
   _NetworkedYaw: 0
   _NetworkedPosition: {x: 0, y: 0, z: 0}
---- !u!114 &4978446579106950231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6546947002017919154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc56b5cfb10dee94eb63d053e12455b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TapHouse.MetaverseWalk.Dog.MetaverseDogController
-  moveSpeed: 1
-  turnAngleMin: 10
-  turnAngleMax: 80
-  turnAngleRampTime: 2
-  speedSmoothTime: 0.2
-  directionSmoothTime: 0.2
-  spawnPoint: {fileID: 0}
-  fallThresholdY: -10
-  animator: {fileID: 1577866622586393851}
---- !u!114 &-8859219865022360706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6546947002017919154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45365f51af488214f92aaf5cc4b34cfa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TapHouse.MetaverseWalk.Network.NetworkPlayerController
-  animator: {fileID: 1577866622586393851}
-  nameTag: {fileID: 0}
-  _PlayerName:
-    _length: 0
-    _data:
-      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-  _AnimSpeed: 0
-  _NetworkedPosition: {x: 0, y: 0, z: 0}
-  _NetworkedYaw: 0
 --- !u!1 &6632048751786246878
 GameObject:
   m_ObjectHideFlags: 0
